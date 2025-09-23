@@ -21,7 +21,8 @@ import {
   Copy,
   RotateCcw,
   Sparkles,
-  Zap
+  Zap,
+  ScanText
 } from 'lucide-react-native';
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -30,17 +31,25 @@ export default function TranslatorScreen() {
   const [inputText, setInputText] = useState('');
   const [translatedText, setTranslatedText] = useState('');
   const [isTranslating, setIsTranslating] = useState(false);
-  const [sourceLanguage, setSourceLanguage] = useState('English');
-  const [targetLanguage, setTargetLanguage] = useState('Spanish');
+  const [sourceScript, setSourceScript] = useState('Devanagari');
+  const [targetScript, setTargetScript] = useState('Tamil');
   const [showSourceModal, setShowSourceModal] = useState(false);
   const [showTargetModal, setShowTargetModal] = useState(false);
   
-  // Available languages
-  const languages = [
-    'English', 'Spanish', 'French', 'German', 'Italian', 
-    'Portuguese', 'Russian', 'Chinese', 'Japanese', 'Korean',
-    'Hindi', 'Arabic', 'Turkish', 'Dutch', 'Polish',
-    'Czech', 'Thai', 'Vietnamese', 'Indonesian', 'Malay'
+  // Available Indian scripts
+  const indianScripts = [
+    'Devanagari (Hindi, Marathi, etc.)',
+    'Bengali',
+    'Tamil',
+    'Telugu',
+    'Malayalam',
+    'Kannada',
+    'Gujarati',
+    'Punjabi (Gurmukhi)',
+    'Oriya',
+    'Assamese',
+    'Urdu',
+    'Sinhala'
   ];
   
   // Animation refs
@@ -76,9 +85,9 @@ export default function TranslatorScreen() {
     ]).start();
   };
 
-  const handleTranslate = async () => {
+  const handleTransliterate = async () => {
     if (!inputText.trim()) {
-      Alert.alert('No Text', 'Please enter text to translate.');
+      Alert.alert('No Text', 'Please enter text to transliterate.');
       return;
     }
 
@@ -87,47 +96,44 @@ export default function TranslatorScreen() {
       triggerHaptic('heavy');
       animateButton(translateButtonScale);
 
-      // Simulate translation process
+      // Simulate transliteration process
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      // Mock translation - in a real app, this would call an API
-      const mockTranslations: Record<string, Record<string, string>> = {
-        'English': {
-          'Hello, how are you today?': 'Hola, ¿cómo estás hoy?',
-          'Good morning, beautiful day!': '¡Buenos días, hermoso día!',
-          'Thank you for your help.': 'Gracias por tu ayuda.',
-          'Where is the nearest restaurant?': '¿Dónde está el restaurante más cercano?',
-          'I would like to book a hotel.': 'Me gustaría reservar un hotel.',
+      // Mock transliteration - in a real app, this would call an API or use a transliteration library
+      const mockTransliterations: Record<string, Record<string, string>> = {
+        'Devanagari (Hindi, Marathi, etc.)': {
+          'नमस्ते': 'நமஸ்தே', // Tamil
+          'धन्यवाद': 'நன்றி', // Tamil
+          'कृपया': 'தயவு செய்து', // Tamil
+          'Hello, how are you today?': 'வணக்கம், நீங்கள் இன்று எப்படி இருக்கிறீர்கள்?',
+          'Good morning, beautiful day!': 'காலை வணக்கம், அழகான நாள்!',
+          'Thank you for your help.': 'உங்கள் உதவிக்கு நன்றி.',
+          'Where is the nearest restaurant?': 'அருகிலுள்ள உணவகம் எங்கே?',
+          'I would like to book a hotel.': 'ஒரு ஹோட்டலை முன்பதிவு செய்ய விரும்புகிறேன்.',
         },
-        'Spanish': {
-          'Hola, ¿cómo estás hoy?': 'Hello, how are you today?',
-          '¡Buenos días, hermoso día!': 'Good morning, beautiful day!',
-          'Gracias por tu ayuda.': 'Thank you for your help.',
-          '¿Dónde está el restaurante más cercano?': 'Where is the nearest restaurant?',
-          'Me gustaría reservar un hotel.': 'I would like to book a hotel.',
+        'Tamil': {
+          'வணக்கம்': 'नमस्ते', // Devanagari
+          'நன்றி': 'धन्यवाद', // Devanagari
+          'தயவு செய்து': 'कृपया', // Devanagari
+          'வணக்கம், நீங்கள் இன்று எப்படி இருக்கிறீர்கள்?': 'नमस्ते, आप आज कैसे हैं?',
+          'காலை வணக்கம், அழகான நாள்!': 'शुभ प्रभात, सुंदर दिन!',
+          'உங்கள் உதவிக்கு நன்றி.': 'आपकी मदद के लिए धन्यवाद।',
+          'அருகிலுள்ள உணவகம் எங்கே?': 'निकटतम रेस्तरां कहाँ है?',
+          'ஒரு ஹோட்டலை முன்பதிவு செய்ய விரும்புகிறேன்.': 'मैं एक होटल बुक करना चाहूंगा।',
         },
-        'Hindi': {
-          'Hello, how are you today?': 'नमस्ते, आप आज कैसे हैं?',
-          'Good morning, beautiful day!': 'शुभ प्रभात, सुंदर दिन!',
-          'Thank you for your help.': 'आपकी मदद के लिए धन्यवाद।',
-          'Where is the nearest restaurant?': 'निकटतम रेस्तरां कहाँ है?',
-          'I would like to book a hotel.': 'मैं एक होटल बुक करना चाहूंगा।',
-        },
-        'Japanese': {
-          'Hello, how are you today?': 'こんにちは、今日はいかがですか？',
-          'Good morning, beautiful day!': 'おはようございます、美しい日ですね！',
-          'Thank you for your help.': 'ご協力ありがとうござい',
-          'Where is the nearest restaurant?': '最寄りのレストランはどこですか？',
-          'I would like to book a hotel.': 'ホテルを予約したいのですが。',
+        'Bengali': {
+          'হ্যালো': 'ஹலோ', // Tamil
+          'ধন্যবাদ': 'நன்றி', // Tamil
+          'দয়া করে': 'தயவு செய்து', // Tamil
         }
       };
 
-      // Get translation based on source and target languages
+      // Get transliteration based on source and target scripts
       let result = '';
-      if (mockTranslations[sourceLanguage] && mockTranslations[sourceLanguage][inputText]) {
-        result = mockTranslations[sourceLanguage][inputText];
+      if (mockTransliterations[sourceScript] && mockTransliterations[sourceScript][inputText]) {
+        result = mockTransliterations[sourceScript][inputText];
       } else {
-        result = `Translation from ${sourceLanguage} to ${targetLanguage}: "${inputText}"`;
+        result = `Transliteration from ${sourceScript} to ${targetScript}: "${inputText}"`;
       }
       
       setTranslatedText(result);
@@ -139,9 +145,9 @@ export default function TranslatorScreen() {
         useNativeDriver: true,
       }).start();
 
-      Alert.alert('✅ Translation Complete!', 'Your text has been translated successfully.');
+      Alert.alert('✅ Transliteration Complete!', 'Your text has been transliterated successfully.');
     } catch (error) {
-      Alert.alert('Error', 'Translation failed. Please try again.');
+      Alert.alert('Error', 'Transliteration failed. Please try again.');
     } finally {
       setIsTranslating(false);
     }
@@ -149,26 +155,26 @@ export default function TranslatorScreen() {
 
   const handleCopy = async () => {
     if (!translatedText.trim()) {
-      Alert.alert('No Text', 'There is no translated text to copy.');
+      Alert.alert('No Text', 'There is no transliterated text to copy.');
       return;
     }
 
     try {
       triggerHaptic('light');
       Clipboard.setString(translatedText);
-      Alert.alert('📋 Copied!', 'Translated text has been copied to clipboard.');
+      Alert.alert('📋 Copied!', 'Transliterated text has been copied to clipboard.');
     } catch (error) {
       Alert.alert('Error', 'Failed to copy text.');
     }
   };
 
-  const handleSwapLanguages = () => {
+  const handleSwapScripts = () => {
     triggerHaptic('light');
-    const temp = sourceLanguage;
-    setSourceLanguage(targetLanguage);
-    setTargetLanguage(temp);
+    const temp = sourceScript;
+    setSourceScript(targetScript);
+    setTargetScript(temp);
     
-    // If we have translated text, swap input and output
+    // If we have transliterated text, swap input and output
     if (translatedText) {
       const tempText = inputText;
       setInputText(translatedText);
@@ -187,7 +193,7 @@ export default function TranslatorScreen() {
     }).start();
   };
 
-  // Start pulse animation for translate button
+  // Start pulse animation for transliterate button
   React.useEffect(() => {
     const pulseAnimation = Animated.loop(
       Animated.sequence([
@@ -223,37 +229,37 @@ export default function TranslatorScreen() {
               <Sparkles size={16} stroke="#FFFFFF" />
             </View>
           </View>
-          <Text style={styles.headerTitle}>Text Translator</Text>
-          <Text style={styles.headerSubtitle}>Translate text between languages instantly</Text>
+          <Text style={styles.headerTitle}>Script Transliterator</Text>
+          <Text style={styles.headerSubtitle}>Transliterate between Indian scripts instantly</Text>
         </View>
 
-        {/* Language Selector */}
+        {/* Script Selector */}
         <View style={styles.languageSelectorContainer}>
           <View style={styles.languageColumn}>
-            <Text style={styles.languageLabel}>From</Text>
+            <Text style={styles.languageLabel}>From Script</Text>
             <TouchableOpacity 
               style={styles.languageDropdown}
               onPress={() => setShowSourceModal(true)}
             >
-              <Text style={styles.languageText}>{sourceLanguage}</Text>
+              <Text style={styles.languageText} numberOfLines={2}>{sourceScript}</Text>
             </TouchableOpacity>
           </View>
           
           <TouchableOpacity 
             style={styles.swapButton}
-            onPress={handleSwapLanguages}
+            onPress={handleSwapScripts}
             activeOpacity={0.7}
           >
             <RotateCcw size={20} stroke="#0078D4" />
           </TouchableOpacity>
           
           <View style={styles.languageColumn}>
-            <Text style={styles.languageLabel}>To</Text>
+            <Text style={styles.languageLabel}>To Script</Text>
             <TouchableOpacity 
               style={styles.languageDropdown}
               onPress={() => setShowTargetModal(true)}
             >
-              <Text style={styles.languageText}>{targetLanguage}</Text>
+              <Text style={styles.languageText} numberOfLines={2}>{targetScript}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -266,7 +272,7 @@ export default function TranslatorScreen() {
           >
             <TextInput
               style={styles.textInput}
-              placeholder="Enter text to translate..."
+              placeholder="Enter text to transliterate..."
               placeholderTextColor="#999999"
               value={inputText}
               onChangeText={setInputText}
@@ -289,7 +295,7 @@ export default function TranslatorScreen() {
           </LinearGradient>
         </BlurView>
 
-        {/* Translate Button */}
+        {/* Transliterate Button */}
         <Animated.View
           style={[
             styles.translateButtonContainer,
@@ -298,7 +304,7 @@ export default function TranslatorScreen() {
         >
           <TouchableOpacity
             style={styles.translateButton}
-            onPress={handleTranslate}
+            onPress={handleTransliterate}
             disabled={isTranslating}
             activeOpacity={0.8}
           >
@@ -306,9 +312,9 @@ export default function TranslatorScreen() {
               colors={isTranslating ? ['#666666', '#444444'] : ['#0078D4', '#0B3D91']}
               style={styles.translateButtonGradient}
             >
-              <Zap size={20} stroke="#FFFFFF" strokeWidth={2} />
+              <ScanText size={20} stroke="#FFFFFF" strokeWidth={2} />
               <Text style={styles.translateButtonText}>
-                {isTranslating ? 'Translating...' : 'Translate'}
+                {isTranslating ? 'Transliterating...' : 'Transliterate'}
               </Text>
             </LinearGradient>
           </TouchableOpacity>
@@ -327,7 +333,7 @@ export default function TranslatorScreen() {
               style={styles.resultGradient}
             >
               <View style={styles.resultHeader}>
-                <Text style={styles.resultTitle}>Translation</Text>
+                <Text style={styles.resultTitle}>Transliteration</Text>
                 {translatedText.length > 0 && (
                   <TouchableOpacity 
                     style={styles.copyButton}
@@ -343,7 +349,7 @@ export default function TranslatorScreen() {
                 <Text style={styles.resultText}>{translatedText}</Text>
               ) : (
                 <Text style={styles.resultPlaceholder}>
-                  {inputText ? 'Tap "Translate" to see the result' : 'Translation will appear here'}
+                  {inputText ? 'Tap "Transliterate" to see the result' : 'Transliteration will appear here'}
                 </Text>
               )}
             </LinearGradient>
@@ -351,7 +357,7 @@ export default function TranslatorScreen() {
         </Animated.View>
       </ScrollView>
 
-      {/* Source Language Modal */}
+      {/* Source Script Modal */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -361,7 +367,7 @@ export default function TranslatorScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Source Language</Text>
+              <Text style={styles.modalTitle}>Select Source Script</Text>
               <TouchableOpacity 
                 style={styles.modalCloseButton}
                 onPress={() => setShowSourceModal(false)}
@@ -370,23 +376,23 @@ export default function TranslatorScreen() {
               </TouchableOpacity>
             </View>
             <ScrollView style={styles.modalScrollView}>
-              {languages.map((lang) => (
+              {indianScripts.map((script) => (
                 <TouchableOpacity
-                  key={`source-${lang}`}
+                  key={`source-${script}`}
                   style={[
                     styles.modalLanguageItem,
-                    sourceLanguage === lang && styles.modalLanguageItemSelected
+                    sourceScript === script && styles.modalLanguageItemSelected
                   ]}
                   onPress={() => {
-                    setSourceLanguage(lang);
+                    setSourceScript(script);
                     setShowSourceModal(false);
                   }}
                 >
                   <Text style={[
                     styles.modalLanguageText,
-                    sourceLanguage === lang && styles.modalLanguageTextSelected
+                    sourceScript === script && styles.modalLanguageTextSelected
                   ]}>
-                    {lang}
+                    {script}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -395,7 +401,7 @@ export default function TranslatorScreen() {
         </View>
       </Modal>
 
-      {/* Target Language Modal */}
+      {/* Target Script Modal */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -405,7 +411,7 @@ export default function TranslatorScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Target Language</Text>
+              <Text style={styles.modalTitle}>Select Target Script</Text>
               <TouchableOpacity 
                 style={styles.modalCloseButton}
                 onPress={() => setShowTargetModal(false)}
@@ -414,23 +420,23 @@ export default function TranslatorScreen() {
               </TouchableOpacity>
             </View>
             <ScrollView style={styles.modalScrollView}>
-              {languages.map((lang) => (
+              {indianScripts.map((script) => (
                 <TouchableOpacity
-                  key={`target-${lang}`}
+                  key={`target-${script}`}
                   style={[
                     styles.modalLanguageItem,
-                    targetLanguage === lang && styles.modalLanguageItemSelected
+                    targetScript === script && styles.modalLanguageItemSelected
                   ]}
                   onPress={() => {
-                    setTargetLanguage(lang);
+                    setTargetScript(script);
                     setShowTargetModal(false);
                   }}
                 >
                   <Text style={[
                     styles.modalLanguageText,
-                    targetLanguage === lang && styles.modalLanguageTextSelected
+                    targetScript === script && styles.modalLanguageTextSelected
                   ]}>
-                    {lang}
+                    {script}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -505,16 +511,19 @@ const styles = StyleSheet.create({
   },
   languageDropdown: {
     paddingVertical: 12,
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     backgroundColor: 'rgba(0, 120, 212, 0.1)',
     borderRadius: 12,
     minWidth: 120,
     alignItems: 'center',
+    minHeight: 60,
+    justifyContent: 'center',
   },
   languageText: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#0078D4',
     fontWeight: '600',
+    textAlign: 'center',
   },
   swapButton: {
     width: 40,
@@ -723,7 +732,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 120, 212, 0.1)',
   },
   modalLanguageText: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#666666',
     fontWeight: '500',
   },
