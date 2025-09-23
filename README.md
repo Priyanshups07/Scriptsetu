@@ -20,6 +20,7 @@ Scriptsetu is a mobile application that enables seamless transliteration between
 - **Offline Functionality**: Works without internet connection for common transliterations
 - **User-friendly Interface**: Intuitive design suitable for all age groups
 - **Heritage Preservation**: Helps preserve and promote India's linguistic diversity
+- **Auto-redirect for Invalid Pages**: Smart navigation that automatically redirects users to the home screen
 
 ## Tech Stack
 
@@ -28,6 +29,13 @@ Scriptsetu is a mobile application that enables seamless transliteration between
 - Expo Camera API
 - Native device features (Camera)
 - Script transliteration libraries
+
+## Recent Improvements
+
+- Fixed all TypeScript compilation errors
+- Updated all packages to Expo 54 compatible versions
+- Enhanced error handling with auto-redirect for invalid pages
+- Improved package version compatibility
 
 ## Installation
 
@@ -75,6 +83,7 @@ npx expo start
 - `app/(tabs)/profile.tsx`: User profile and settings
 - `app/_layout.tsx`: Main app layout configuration
 - `app/(tabs)/_layout.tsx`: Tab navigation configuration
+- `app/utils/transliterator.ts`: Core transliteration logic
 
 ## Contributing
 
