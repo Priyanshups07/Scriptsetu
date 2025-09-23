@@ -24,7 +24,8 @@ import {
   Image as ImageIcon, 
   Zap,
   Sparkles,
-  Circle
+  Circle,
+  ScanText
 } from 'lucide-react-native';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
@@ -34,7 +35,7 @@ export default function CameraScreen() {
   const [flash, setFlash] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
   const [isCapturing, setIsCapturing] = useState(false);
-  const [captureMode, setCaptureMode] = useState<'photo' | 'scan'>('photo');
+  const [captureMode, setCaptureMode] = useState<'sign' | 'text'>('sign');
   
   // Animation refs
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -100,7 +101,7 @@ export default function CameraScreen() {
 
   const switchMode = () => {
     triggerHaptic('light');
-    setCaptureMode(prev => prev === 'photo' ? 'scan' : 'photo');
+    setCaptureMode(prev => prev === 'sign' ? 'text' : 'sign');
     
     Animated.parallel([
       Animated.spring(modeSwipeAnim, {
@@ -108,7 +109,7 @@ export default function CameraScreen() {
         useNativeDriver: false,
       }),
       Animated.timing(scanOverlayAnim, {
-        toValue: captureMode === 'photo' ? 1 : 0,
+        toValue: captureMode === 'sign' ? 1 : 0,
         duration: 300,
         useNativeDriver: true,
       }),
@@ -164,9 +165,11 @@ export default function CameraScreen() {
       // Simulate capture success
       setTimeout(() => {
         Alert.alert(
-          captureMode === 'photo' ? '📸 Photo Captured!' : '📄 Document Scanned!',
-          'Your capture has been processed successfully.',
-          [{ text: 'Great!', style: 'default' }]
+          captureMode === 'sign' ? '📸 Sign Detected!' : '📄 Text Captured!',
+          captureMode === 'sign' 
+            ? 'Street sign detected. Transliteration will appear in the Translator tab.' 
+            : 'Text captured. Transliteration will appear in the Translator tab.',
+          [{ text: 'View Result', style: 'default' }]
         );
       }, 300);
 
@@ -188,7 +191,7 @@ export default function CameraScreen() {
       });
 
       if (!result.canceled) {
-        Alert.alert('✨ Image Loaded!', 'Your image has been processed successfully.');
+        Alert.alert('✨ Image Loaded!', 'Your image has been processed for transliteration.');
       }
     } catch (error) {
       Alert.alert('Error', 'Failed to access gallery.');
@@ -261,7 +264,7 @@ export default function CameraScreen() {
           
           <Text style={styles.permissionTitle}>Camera Access Required</Text>
           <Text style={styles.permissionText}>
-            Enable camera access to capture photos and scan documents with AI-powered features.
+            Enable camera access to detect street signs and transliterate Indian scripts.
           </Text>
           
           <TouchableOpacity
@@ -301,8 +304,8 @@ export default function CameraScreen() {
           ]}
         />
 
-        {/* Scan mode overlay */}
-        {captureMode === 'scan' && (
+        {/* Sign detection overlay */}
+        {captureMode === 'sign' && (
           <Animated.View
             style={[
               styles.scanOverlay,
@@ -317,7 +320,29 @@ export default function CameraScreen() {
               <View style={[styles.scanCorner, styles.scanCornerBL]} />
               <View style={[styles.scanCorner, styles.scanCornerBR]} />
             </View>
-            <Text style={styles.scanText}>Position document within frame</Text>
+            <Text style={styles.scanText}>Point at street signs or public text</Text>
+            <Text style={styles.scanSubtext}>Scriptsetu will detect and transliterate Indian scripts</Text>
+          </Animated.View>
+        )}
+
+        {/* Text capture overlay */}
+        {captureMode === 'text' && (
+          <Animated.View
+            style={[
+              styles.textOverlay,
+              {
+                opacity: scanOverlayAnim,
+              },
+            ]}
+          >
+            <View style={styles.textFrame}>
+              <View style={[styles.textCorner, styles.textCornerTL]} />
+              <View style={[styles.textCorner, styles.textCornerTR]} />
+              <View style={[styles.textCorner, styles.textCornerBL]} />
+              <View style={[styles.textCorner, styles.textCornerBR]} />
+            </View>
+            <Text style={styles.scanText}>Capture any text for transliteration</Text>
+            <Text style={styles.scanSubtext}>Supports all Indian scripts</Text>
           </Animated.View>
         )}
 
@@ -365,21 +390,22 @@ export default function CameraScreen() {
         <View style={styles.modeSelector} {...panResponder.panHandlers}>
           <BlurView intensity={20} style={styles.modeSelectorContainer}>
             <TouchableOpacity
-              style={[styles.modeButton, captureMode === 'photo' && styles.activeModeButton]}
-              onPress={() => captureMode !== 'photo' && switchMode()}
+              style={[styles.modeButton, captureMode === 'sign' && styles.activeModeButton]}
+              onPress={() => captureMode !== 'sign' && switchMode()}
               activeOpacity={0.8}
             >
-              <Text style={[styles.modeText, captureMode === 'photo' && styles.activeModeText]}>
-                Photo
+              <ScanText size={16} color={captureMode === 'sign' ? '#FFFFFF' : 'rgba(255,255,255,0.7)'} />
+              <Text style={[styles.modeText, captureMode === 'sign' && styles.activeModeText]}>
+                Sign Detection
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.modeButton, captureMode === 'scan' && styles.activeModeButton]}
-              onPress={() => captureMode !== 'scan' && switchMode()}
+              style={[styles.modeButton, captureMode === 'text' && styles.activeModeButton]}
+              onPress={() => captureMode !== 'text' && switchMode()}
               activeOpacity={0.8}
             >
-              <Text style={[styles.modeText, captureMode === 'scan' && styles.activeModeText]}>
-                Scan
+              <Text style={[styles.modeText, captureMode === 'text' && styles.activeModeText]}>
+                Text Capture
               </Text>
             </TouchableOpacity>
           </BlurView>
@@ -590,11 +616,64 @@ const styles = StyleSheet.create({
     borderLeftWidth: 0,
     borderTopWidth: 0,
   },
+  textOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    zIndex: 5,
+  },
+  textFrame: {
+    width: screenWidth * 0.8,
+    height: screenWidth * 0.4,
+    position: 'relative',
+  },
+  textCorner: {
+    position: 'absolute',
+    width: 20,
+    height: 20,
+    borderColor: '#0078D4',
+    borderWidth: 2,
+  },
+  textCornerTL: {
+    top: 0,
+    left: 0,
+    borderRightWidth: 0,
+    borderBottomWidth: 0,
+  },
+  textCornerTR: {
+    top: 0,
+    right: 0,
+    borderLeftWidth: 0,
+    borderBottomWidth: 0,
+  },
+  textCornerBL: {
+    bottom: 0,
+    left: 0,
+    borderRightWidth: 0,
+    borderTopWidth: 0,
+  },
+  textCornerBR: {
+    bottom: 0,
+    right: 0,
+    borderLeftWidth: 0,
+    borderTopWidth: 0,
+  },
   scanText: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
     marginTop: 24,
+    textAlign: 'center',
+  },
+  scanSubtext: {
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: 14,
+    marginTop: 8,
     textAlign: 'center',
   },
   topControls: {
@@ -632,7 +711,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: Platform.OS === 'ios' ? 140 : 120,
     left: '50%',
-    transform: [{ translateX: -80 }],
+    transform: [{ translateX: -100 }],
     zIndex: 1,
   },
   modeSelectorContainer: {
@@ -642,9 +721,12 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   modeButton: {
-    paddingHorizontal: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 16,
+    gap: 6,
   },
   activeModeButton: {
     backgroundColor: 'rgba(0, 120, 212, 0.8)',
