@@ -1,7 +1,19 @@
-import { Link, Stack } from 'expo-router';
+import { Link, Stack, useRouter } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
+import { useEffect } from 'react';
 
 export default function NotFoundScreen() {
+  const router = useRouter();
+
+  useEffect(() => {
+    // Redirect to home screen after 3 seconds
+    const timer = setTimeout(() => {
+      router.replace('/(tabs)/camera');
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [router]);
+
   return (
     <>
       <Stack.Screen options={{ title: 'Oops!' }} />
