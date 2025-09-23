@@ -12,11 +12,11 @@ import {
   Switch,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { User, Mail, Settings, Moon, Sun, LogOut, Camera, FileText, CreditCard as Edit3, ChevronRight } from 'lucide-react-native';
+import { User, Mail, Settings, Moon, Sun, LogOut, Camera, FileText, CreditCard as Edit3, ChevronRight, Languages, Heart } from 'lucide-react-native';
 
 interface SavedItem {
   id: string;
-  type: 'camera' | 'text';
+  type: 'sign' | 'text';
   content: string;
   timestamp: Date;
 }
@@ -26,20 +26,20 @@ export default function ProfileScreen() {
   const [savedItems] = useState<SavedItem[]>([
     {
       id: '1',
-      type: 'camera',
-      content: 'Photo captured on Dec 15, 2024',
+      type: 'sign',
+      content: 'Street sign transliteration: Punjabi to Tamil',
       timestamp: new Date('2024-12-15'),
     },
     {
       id: '2',
       type: 'text',
-      content: 'Meeting notes: Discussed project timeline and deliverables...',
+      content: 'Document transliteration: Hindi to Malayalam',
       timestamp: new Date('2024-12-14'),
     },
     {
       id: '3',
-      type: 'camera',
-      content: 'Document scan - Invoice #12345',
+      type: 'sign',
+      content: 'Road sign transliteration: Bengali to Telugu',
       timestamp: new Date('2024-12-13'),
     },
   ]);
@@ -139,12 +139,12 @@ export default function ProfileScreen() {
               <User size={48} color="#0078D4" strokeWidth={2} />
             </TouchableOpacity>
             <View style={styles.avatarBadge}>
-              <Camera size={16} color="#FFFFFF" />
+              <Languages size={16} color="#FFFFFF" />
             </View>
           </Animated.View>
 
-          <Text style={styles.userName}>John Doe</Text>
-          <Text style={styles.userEmail}>john.doe@example.com</Text>
+          <Text style={styles.userName}>Scriptsetu User</Text>
+          <Text style={styles.userEmail}>user@scriptsetu.in</Text>
 
           <Animated.View
             style={[
@@ -167,20 +167,20 @@ export default function ProfileScreen() {
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
             <Camera size={20} color="#0078D4" />
-            <Text style={styles.statNumber}>12</Text>
-            <Text style={styles.statLabel}>Photos</Text>
+            <Text style={styles.statNumber}>24</Text>
+            <Text style={styles.statLabel}>Signs</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
             <FileText size={20} color="#0078D4" />
-            <Text style={styles.statNumber}>8</Text>
+            <Text style={styles.statNumber}>16</Text>
             <Text style={styles.statLabel}>Texts</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Settings size={20} color="#0078D4" />
-            <Text style={styles.statNumber}>3</Text>
-            <Text style={styles.statLabel}>Settings</Text>
+            <Languages size={20} color="#0078D4" />
+            <Text style={styles.statNumber}>12</Text>
+            <Text style={styles.statLabel}>Scripts</Text>
           </View>
         </View>
 
@@ -215,8 +215,8 @@ export default function ProfileScreen() {
 
           <TouchableOpacity style={styles.settingItem} activeOpacity={0.8}>
             <View style={styles.settingLeft}>
-              <Settings size={20} color="#0078D4" />
-              <Text style={styles.settingText}>Preferences</Text>
+              <Heart size={20} color="#0078D4" />
+              <Text style={styles.settingText}>Favorite Scripts</Text>
             </View>
             <ChevronRight size={20} color="#999999" />
           </TouchableOpacity>
@@ -224,7 +224,7 @@ export default function ProfileScreen() {
 
         {/* Recent Activity */}
         <View style={styles.activitySection}>
-          <Text style={styles.sectionTitle}>Recent Activity</Text>
+          <Text style={styles.sectionTitle}>Recent Transliterations</Text>
           {savedItems.map((item) => (
             <TouchableOpacity
               key={item.id}
@@ -232,7 +232,7 @@ export default function ProfileScreen() {
               activeOpacity={0.8}
             >
               <View style={styles.activityIcon}>
-                {item.type === 'camera' ? (
+                {item.type === 'sign' ? (
                   <Camera size={16} color="#0078D4" />
                 ) : (
                   <FileText size={16} color="#0078D4" />
