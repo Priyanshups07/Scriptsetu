@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import transliterator, { getScriptName } from '../utils/transliterator';
 import {
   View,
   Text,
@@ -99,42 +100,12 @@ export default function TranslatorScreen() {
       // Simulate transliteration process
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      // Mock transliteration - in a real app, this would call an API or use a transliteration library
-      const mockTransliterations: Record<string, Record<string, string>> = {
-        'Devanagari (Hindi, Marathi, etc.)': {
-          'नमस्ते': 'நமஸ்தே', // Tamil
-          'धन्यवाद': 'நன்றி', // Tamil
-          'कृपया': 'தயவு செய்து', // Tamil
-          'Hello, how are you today?': 'வணக்கம், நீங்கள் இன்று எப்படி இருக்கிறீர்கள்?',
-          'Good morning, beautiful day!': 'காலை வணக்கம், அழகான நாள்!',
-          'Thank you for your help.': 'உங்கள் உதவிக்கு நன்றி.',
-          'Where is the nearest restaurant?': 'அருகிலுள்ள உணவகம் எங்கே?',
-          'I would like to book a hotel.': 'ஒரு ஹோட்டலை முன்பதிவு செய்ய விரும்புகிறேன்.',
-        },
-        'Tamil': {
-          'வணக்கம்': 'नमस्ते', // Devanagari
-          'நன்றி': 'धन्यवाद', // Devanagari
-          'தயவு செய்து': 'कृपया', // Devanagari
-          'வணக்கம், நீங்கள் இன்று எப்படி இருக்கிறீர்கள்?': 'नमस्ते, आप आज कैसे हैं?',
-          'காலை வணக்கம், அழகான நாள்!': 'शुभ प्रभात, सुंदर दिन!',
-          'உங்கள் உதவிக்கு நன்றி.': 'आपकी मदद के लिए धन्यवाद।',
-          'அருகிலுள்ள உணவகம் எங்கே?': 'निकटतम रेस्तरां कहाँ है?',
-          'ஒரு ஹோட்டலை முன்பதிவு செய்ய விரும்புகிறேன்.': 'मैं एक होटल बुक करना चाहूंगा।',
-        },
-        'Bengali': {
-          'হ্যালো': 'ஹலோ', // Tamil
-          'ধন্যবাদ': 'நன்றி', // Tamil
-          'দয়া করে': 'தயவு செய்து', // Tamil
-        }
-      };
+      // Get actual script names
+      const sourceScriptName = getScriptName(sourceScript);
+      const targetScriptName = getScriptName(targetScript);
 
-      // Get transliteration based on source and target scripts
-      let result = '';
-      if (mockTransliterations[sourceScript] && mockTransliterations[sourceScript][inputText]) {
-        result = mockTransliterations[sourceScript][inputText];
-      } else {
-        result = `Transliteration from ${sourceScript} to ${targetScript}: "${inputText}"`;
-      }
+      // Use our transliteration function
+      const result = transliterator.transliterateText(inputText, sourceScriptName, targetScriptName);
       
       setTranslatedText(result);
       
