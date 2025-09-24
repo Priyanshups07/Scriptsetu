@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,8 @@ import {
   Animated,
   Alert,
   Switch,
+  Modal,
+  useWindowDimensions,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { User, Mail, Settings, Moon, Sun, LogOut, Camera, FileText, CreditCard as Edit3, ChevronRight, Languages, Heart } from 'lucide-react-native';
@@ -23,10 +25,28 @@ interface SavedItem {
   timestamp: Date;
 }
 
+interface NotificationItem {
+  id: string;
+  title: string;
+  body: string;
+  timestamp: Date;
+  unread?: boolean;
+}
+
+interface FavoriteScriptItem {
+  id: string;
+  title: string;
+  description: string;
+  pair: string; // e.g., "Hindi → Malayalam"
+}
+
 export default function ProfileScreen() {
   const { theme, toggleTheme } = useTheme();
   // Helper function to determine if dark mode is active
   const isDarkMode = theme === 'dark';
+  const { width } = useWindowDimensions();
+  const isCompact = width < 380;
+  const isWide = width >= 768;
   const [savedItems] = useState<SavedItem[]>([
     {
       id: '1',
@@ -50,6 +70,52 @@ export default function ProfileScreen() {
 
   const avatarBounce = useRef(new Animated.Value(1)).current;
   const editButtonScale = useRef(new Animated.Value(1)).current;
+
+  const [notifModalVisible, setNotifModalVisible] = useState(false);
+  const [notifications] = useState<NotificationItem[]>([
+    {
+      id: 'n1',
+      title: 'Welcome to Scriptsetu',
+      body: 'Thanks for joining! Start by translating a sign or text.',
+      timestamp: new Date('2024-12-12'),
+      unread: true,
+    },
+    {
+      id: 'n2',
+      title: 'Feature Update',
+      body: 'We added support for two more Indic scripts.',
+      timestamp: new Date('2024-12-14'),
+    },
+    {
+      id: 'n3',
+      title: 'Tips & Tricks',
+      body: 'Use the camera tab for instant on-the-go transliteration.',
+      timestamp: new Date('2024-12-15'),
+    },
+  ]);
+  const [selectedNotification, setSelectedNotification] = useState<NotificationItem | null>(null);
+  const [favModalVisible, setFavModalVisible] = useState(false);
+  const [favorites] = useState<FavoriteScriptItem[]>([
+    {
+      id: 'f1',
+      title: 'Street Boards Pack',
+      description: 'Common street board phrases for travel assistance.',
+      pair: 'Punjabi → Tamil',
+    },
+    {
+      id: 'f2',
+      title: 'Official Docs Preset',
+      description: 'Formal terms for documents and IDs.',
+      pair: 'Hindi → Malayalam',
+    },
+    {
+      id: 'f3',
+      title: 'Highway Signs',
+      description: 'Highway and navigation signage keywords.',
+      pair: 'Bengali → Telugu',
+    },
+  ]);
+  const [selectedFavorite, setSelectedFavorite] = useState<FavoriteScriptItem | null>(null);
 
   const triggerHaptic = () => {
     if (Platform.OS !== 'web') {
@@ -364,6 +430,10 @@ export default function ProfileScreen() {
               }
             ]} 
             activeOpacity={0.8}
+            onPress={() => {
+              triggerHaptic();
+              setNotifModalVisible(true);
+            }}
           >
             <View style={styles.settingLeft}>
               <Mail size={20} color={isDarkMode ? Colors.dark.primary : Colors.light.primary} />
@@ -385,7 +455,16 @@ export default function ProfileScreen() {
               <Heart size={20} color={isDarkMode ? Colors.dark.primary : Colors.light.primary} />
               <Text style={themedStyles.settingText}>Favorite Scripts</Text>
             </View>
-            <ChevronRight size={20} color={isDarkMode ? Colors.dark.placeholder : Colors.light.placeholder} />
+            <TouchableOpacity
+              onPress={() => {
+                triggerHaptic();
+                setSelectedFavorite(favorites[0]);
+                setFavModalVisible(true);
+              }}
+              activeOpacity={0.8}
+            >
+              <ChevronRight size={20} color={isDarkMode ? Colors.dark.placeholder : Colors.light.placeholder} />
+            </TouchableOpacity>
           </TouchableOpacity>
         </View>
 
@@ -429,6 +508,172 @@ export default function ProfileScreen() {
             </TouchableOpacity>
           ))}
         </View>
+
+        {/* Notifications Modal */}
+        <Modal
+          transparent
+          visible={notifModalVisible}
+          animationType="slide"
+          onRequestClose={() => setNotifModalVisible(false)}
+        >
+          <View style={styles.modalRoot}>
+            <View style={styles.modalBackdrop} />
+            <View
+              style={[
+                styles.modalCard,
+                {
+                  backgroundColor: isDarkMode ? Colors.dark.secondaryBackground : Colors.light.secondaryBackground,
+                  width: isWide ? '75%' : '90%',
+                },
+              ]}
+            >
+              <View style={styles.modalHeader}>
+                <Text style={[themedStyles.sectionTitle, { marginBottom: 0 }]}>Notifications</Text>
+                <TouchableOpacity onPress={() => setNotifModalVisible(false)} activeOpacity={0.8}>
+                  <Text style={{ color: isDarkMode ? Colors.dark.primary : Colors.light.primary, fontWeight: '600' }}>Close</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={[styles.modalBody, { flexDirection: isWide ? 'row' : 'column', gap: isWide ? 16 : 12 }]}>
+                <ScrollView
+                  style={[styles.modalList, { maxHeight: isWide ? 400 : 220 }]}
+                  contentContainerStyle={{ paddingVertical: 4 }}
+                  showsVerticalScrollIndicator={false}
+                >
+                  {notifications.map((n) => (
+                    <TouchableOpacity
+                      key={n.id}
+                      onPress={() => setSelectedNotification(n)}
+                      style={[
+                        styles.modalListItem,
+                        {
+                          backgroundColor: isDarkMode ? Colors.dark.background : '#FFFFFF',
+                          borderColor: isDarkMode ? Colors.dark.separator : Colors.light.separator,
+                          paddingVertical: isCompact ? 10 : 12,
+                          paddingHorizontal: isCompact ? 10 : 12,
+                        },
+                      ]}
+                      activeOpacity={0.85}
+                    >
+                      <View style={[styles.notificationDot, { backgroundColor: n.unread ? (isDarkMode ? Colors.dark.primary : Colors.light.primary) : (isDarkMode ? Colors.dark.border : Colors.light.border) }]} />
+                      <View style={{ flex: 1 }}>
+                        <Text numberOfLines={1} style={{ color: isDarkMode ? Colors.dark.text : Colors.light.text, fontWeight: '700', fontSize: isCompact ? 14 : 15 }}>
+                          {n.title}
+                        </Text>
+                        <Text numberOfLines={1} style={{ color: isDarkMode ? Colors.dark.secondaryText : Colors.light.secondaryText, fontSize: isCompact ? 12 : 13 }}>
+                          {formatDate(n.timestamp)}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+
+                <View style={[styles.modalDetails, { minHeight: isWide ? 400 : undefined }] }>
+                  {selectedNotification ? (
+                    <View>
+                      <Text style={{ color: isDarkMode ? Colors.dark.text : Colors.light.text, fontWeight: '700', fontSize: isCompact ? 16 : 18, marginBottom: 6 }}>
+                        {selectedNotification.title}
+                      </Text>
+                      <Text style={{ color: isDarkMode ? Colors.dark.secondaryText : Colors.light.secondaryText, fontSize: isCompact ? 13 : 15, lineHeight: isCompact ? 18 : 20, marginBottom: 8 }}>
+                        {selectedNotification.body}
+                      </Text>
+                      <Text style={{ color: isDarkMode ? Colors.dark.placeholder : Colors.light.placeholder, fontSize: 12 }}>
+                        {formatDate(selectedNotification.timestamp)}
+                      </Text>
+                    </View>
+                  ) : (
+                    <Text style={{ color: isDarkMode ? Colors.dark.placeholder : Colors.light.placeholder }}>
+                      Select a notification to view details
+                    </Text>
+                  )}
+                </View>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Favorites Modal */}
+        <Modal
+          transparent
+          visible={favModalVisible}
+          animationType="slide"
+          onRequestClose={() => setFavModalVisible(false)}
+        >
+          <View style={styles.modalRoot}>
+            <View style={styles.modalBackdrop} />
+            <View
+              style={[
+                styles.modalCard,
+                {
+                  backgroundColor: isDarkMode ? Colors.dark.secondaryBackground : Colors.light.secondaryBackground,
+                  width: isWide ? '75%' : '90%',
+                },
+              ]}
+            >
+              <View style={styles.modalHeader}>
+                <Text style={[themedStyles.sectionTitle, { marginBottom: 0 }]}>Favorite Scripts</Text>
+                <TouchableOpacity onPress={() => setFavModalVisible(false)} activeOpacity={0.8}>
+                  <Text style={{ color: isDarkMode ? Colors.dark.primary : Colors.light.primary, fontWeight: '600' }}>Close</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={[styles.modalBody, { flexDirection: isWide ? 'row' : 'column', gap: isWide ? 16 : 12 }]}>
+                <ScrollView
+                  style={[styles.modalList, { maxHeight: isWide ? 400 : 220 }]}
+                  contentContainerStyle={{ paddingVertical: 4 }}
+                  showsVerticalScrollIndicator={false}
+                >
+                  {favorites.map((f) => (
+                    <TouchableOpacity
+                      key={f.id}
+                      onPress={() => setSelectedFavorite(f)}
+                      style={[
+                        styles.modalListItem,
+                        {
+                          backgroundColor: isDarkMode ? Colors.dark.background : '#FFFFFF',
+                          borderColor: isDarkMode ? Colors.dark.separator : Colors.light.separator,
+                          paddingVertical: isCompact ? 10 : 12,
+                          paddingHorizontal: isCompact ? 10 : 12,
+                        },
+                      ]}
+                      activeOpacity={0.85}
+                    >
+                      <Heart size={14} color={isDarkMode ? Colors.dark.primary : Colors.light.primary} />
+                      <View style={{ flex: 1 }}>
+                        <Text numberOfLines={1} style={{ color: isDarkMode ? Colors.dark.text : Colors.light.text, fontWeight: '700', fontSize: isCompact ? 14 : 15 }}>
+                          {f.title}
+                        </Text>
+                        <Text numberOfLines={1} style={{ color: isDarkMode ? Colors.dark.secondaryText : Colors.light.secondaryText, fontSize: isCompact ? 12 : 13 }}>
+                          {f.pair}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+
+                <View style={[styles.modalDetails, { minHeight: isWide ? 400 : undefined }] }>
+                  {selectedFavorite ? (
+                    <View>
+                      <Text style={{ color: isDarkMode ? Colors.dark.text : Colors.light.text, fontWeight: '700', fontSize: isCompact ? 16 : 18, marginBottom: 6 }}>
+                        {selectedFavorite.title}
+                      </Text>
+                      <Text style={{ color: isDarkMode ? Colors.dark.secondaryText : Colors.light.secondaryText, fontSize: isCompact ? 13 : 15, lineHeight: isCompact ? 18 : 20, marginBottom: 8 }}>
+                        {selectedFavorite.description}
+                      </Text>
+                      <Text style={{ color: isDarkMode ? Colors.dark.placeholder : Colors.light.placeholder, fontSize: 12 }}>
+                        {selectedFavorite.pair}
+                      </Text>
+                    </View>
+                  ) : (
+                    <Text style={{ color: isDarkMode ? Colors.dark.placeholder : Colors.light.placeholder }}>
+                      Select a favorite script to view details
+                    </Text>
+                  )}
+                </View>
+              </View>
+            </View>
+          </View>
+        </Modal>
 
         {/* Logout */}
         <TouchableOpacity
@@ -555,6 +800,50 @@ const styles = StyleSheet.create({
   },
   activityContent: {
     flex: 1,
+  },
+  modalRoot: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  modalCard: {
+    borderRadius: 16,
+    padding: 16,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  modalBody: {
+  },
+  modalList: {
+    flex: 1,
+  },
+  modalListItem: {
+    borderRadius: 10,
+    borderWidth: 1,
+    marginBottom: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  notificationDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  modalDetails: {
+    flex: 1,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'transparent',
+    padding: 12,
   },
   logoutButton: {
     flexDirection: 'row',
