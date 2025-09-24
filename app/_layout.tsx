@@ -9,7 +9,7 @@ import {
   Inter_700Bold,
 } from '@expo-google-fonts/inter';
 import * as SplashScreen from 'expo-splash-screen';
-import { ThemeProvider } from './utils/ThemeContext';
+import { ThemeProvider } from '../app/utils/ThemeContext';
 
 // Prevent auto-hiding of splash screen
 SplashScreen.preventAutoHideAsync();
@@ -25,7 +25,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (fontsLoaded || fontError) {
-      SplashScreen.hideAsync();
+      // Native splash screen will be hidden by our custom splash component
     }
   }, [fontsLoaded, fontError]);
 
@@ -36,6 +36,7 @@ export default function RootLayout() {
   return (
     <ThemeProvider>
       <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(splash)" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>
