@@ -27,10 +27,14 @@ import {
   Circle,
   ScanText
 } from 'lucide-react-native';
+import { useTheme } from '../../app/utils/ThemeContext';
+import { Colors } from '../../app/utils/theme';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 export default function CameraScreen() {
+  const { theme } = useTheme();
+  const isDarkMode = theme === 'dark';
   const [facing, setFacing] = useState<CameraType>('back');
   const [flash, setFlash] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
@@ -237,15 +241,15 @@ export default function CameraScreen() {
 
   if (!permission) {
     return (
-      <View style={styles.loadingContainer}>
+      <View style={[styles.loadingContainer, { backgroundColor: isDarkMode ? Colors.dark.background : Colors.light.background }]}>
         <LinearGradient
-          colors={['#0078D4', '#0B3D91']}
+          colors={isDarkMode ? ['#0B3D91', '#0078D4'] : ['#0078D4', '#0B3D91']}
           style={styles.loadingGradient}
         >
           <Animated.View style={[styles.loadingSpinner, { transform: [{ rotate: '0deg' }] }]}>
-            <Sparkles size={32} color="#FFFFFF" />
+            <Sparkles size={32} color={isDarkMode ? "#FFFFFF" : "#FFFFFF"} />
           </Animated.View>
-          <Text style={styles.loadingText}>Initializing Camera...</Text>
+          <Text style={[styles.loadingText, { color: isDarkMode ? Colors.dark.text : Colors.light.text }]}>Initializing Camera...</Text>
         </LinearGradient>
       </View>
     );
@@ -253,17 +257,23 @@ export default function CameraScreen() {
 
   if (!permission.granted) {
     return (
-      <LinearGradient colors={['#F8F9FA', '#FFFFFF']} style={styles.permissionContainer}>
-        <BlurView intensity={20} style={styles.permissionCard}>
+      <LinearGradient 
+        colors={isDarkMode ? ['#1C1C1E', '#000000'] : ['#F8F9FA', '#FFFFFF']} 
+        style={styles.permissionContainer}
+      >
+        <BlurView 
+          intensity={20} 
+          style={[styles.permissionCard, { backgroundColor: isDarkMode ? 'rgba(28, 28, 30, 0.95)' : 'rgba(255, 255, 255, 0.95)' }]}
+        >
           <View style={styles.permissionIconContainer}>
-            <CameraIcon size={48} color="#0078D4" strokeWidth={1.5} />
-            <View style={styles.permissionIconBadge}>
+            <CameraIcon size={48} color={isDarkMode ? "#0A84FF" : "#0078D4"} strokeWidth={1.5} />
+            <View style={[styles.permissionIconBadge, { backgroundColor: isDarkMode ? "#0A84FF" : "#0078D4" }]}>
               <Zap size={16} color="#FFFFFF" />
             </View>
           </View>
           
-          <Text style={styles.permissionTitle}>Camera Access Required</Text>
-          <Text style={styles.permissionText}>
+          <Text style={[styles.permissionTitle, { color: isDarkMode ? Colors.dark.text : Colors.light.text }]}>Camera Access Required</Text>
+          <Text style={[styles.permissionText, { color: isDarkMode ? Colors.dark.secondaryText : Colors.light.secondaryText }]}>
             Enable camera access to detect street signs and transliterate Indian scripts.
           </Text>
           
@@ -273,10 +283,10 @@ export default function CameraScreen() {
             activeOpacity={0.8}
           >
             <LinearGradient
-              colors={['#0078D4', '#0B3D91']}
+              colors={isDarkMode ? ['#0A84FF', '#0078D4'] : ['#0078D4', '#0B3D91']}
               style={styles.permissionButtonGradient}
             >
-              <Text style={styles.permissionButtonText}>Enable Camera</Text>
+              <Text style={[styles.permissionButtonText, { color: '#FFFFFF' }]}>Enable Camera</Text>
               <Sparkles size={16} color="#FFFFFF" />
             </LinearGradient>
           </TouchableOpacity>
@@ -286,7 +296,7 @@ export default function CameraScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: isDarkMode ? Colors.dark.background : Colors.light.background }]}>
       <StatusBar hidden />
       
       <CameraView
@@ -300,6 +310,7 @@ export default function CameraScreen() {
             styles.flashOverlay,
             {
               opacity: flashAnim,
+              backgroundColor: isDarkMode ? '#000000' : '#FFFFFF',
             },
           ]}
         />
@@ -315,13 +326,13 @@ export default function CameraScreen() {
             ]}
           >
             <View style={styles.scanFrame}>
-              <View style={[styles.scanCorner, styles.scanCornerTL]} />
-              <View style={[styles.scanCorner, styles.scanCornerTR]} />
-              <View style={[styles.scanCorner, styles.scanCornerBL]} />
-              <View style={[styles.scanCorner, styles.scanCornerBR]} />
+              <View style={[styles.scanCorner, styles.scanCornerTL, { borderColor: isDarkMode ? "#0A84FF" : "#0078D4" }]} />
+              <View style={[styles.scanCorner, styles.scanCornerTR, { borderColor: isDarkMode ? "#0A84FF" : "#0078D4" }]} />
+              <View style={[styles.scanCorner, styles.scanCornerBL, { borderColor: isDarkMode ? "#0A84FF" : "#0078D4" }]} />
+              <View style={[styles.scanCorner, styles.scanCornerBR, { borderColor: isDarkMode ? "#0A84FF" : "#0078D4" }]} />
             </View>
-            <Text style={styles.scanText}>Point at street signs or public text</Text>
-            <Text style={styles.scanSubtext}>Scriptsetu will detect and transliterate Indian scripts</Text>
+            <Text style={[styles.scanText, { color: isDarkMode ? Colors.dark.text : Colors.light.text }]}>Point at street signs or public text</Text>
+            <Text style={[styles.scanSubtext, { color: isDarkMode ? Colors.dark.secondaryText : Colors.light.secondaryText }]}>Scriptsetu will detect and transliterate Indian scripts</Text>
           </Animated.View>
         )}
 
@@ -336,13 +347,13 @@ export default function CameraScreen() {
             ]}
           >
             <View style={styles.textFrame}>
-              <View style={[styles.textCorner, styles.textCornerTL]} />
-              <View style={[styles.textCorner, styles.textCornerTR]} />
-              <View style={[styles.textCorner, styles.textCornerBL]} />
-              <View style={[styles.textCorner, styles.textCornerBR]} />
+              <View style={[styles.textCorner, styles.textCornerTL, { borderColor: isDarkMode ? "#0A84FF" : "#0078D4" }]} />
+              <View style={[styles.textCorner, styles.textCornerTR, { borderColor: isDarkMode ? "#0A84FF" : "#0078D4" }]} />
+              <View style={[styles.textCorner, styles.textCornerBL, { borderColor: isDarkMode ? "#0A84FF" : "#0078D4" }]} />
+              <View style={[styles.textCorner, styles.textCornerBR, { borderColor: isDarkMode ? "#0A84FF" : "#0078D4" }]} />
             </View>
-            <Text style={styles.scanText}>Capture any text for transliteration</Text>
-            <Text style={styles.scanSubtext}>Supports all Indian scripts</Text>
+            <Text style={[styles.scanText, { color: isDarkMode ? Colors.dark.text : Colors.light.text }]}>Capture any text for transliteration</Text>
+            <Text style={[styles.scanSubtext, { color: isDarkMode ? Colors.dark.secondaryText : Colors.light.secondaryText }]}>Supports all Indian scripts</Text>
           </Animated.View>
         )}
 
@@ -353,20 +364,23 @@ export default function CameraScreen() {
             { opacity: controlsOpacity },
           ]}
         >
-          <BlurView intensity={20} style={styles.controlsContainer}>
+          <BlurView 
+            intensity={20} 
+            style={[styles.controlsContainer, { backgroundColor: isDarkMode ? 'rgba(28, 28, 30, 0.7)' : 'rgba(255, 255, 255, 0.2)' }]}
+          >
             <TouchableOpacity
               style={[styles.controlButton, flash && styles.activeControl]}
               onPress={toggleFlash}
               activeOpacity={0.7}
             >
               <LinearGradient
-                colors={flash ? ['#0078D4', '#0B3D91'] : ['rgba(255,255,255,0.2)', 'rgba(255,255,255,0.1)']}
+                colors={flash ? (isDarkMode ? ['#0A84FF', '#0078D4'] : ['#0078D4', '#0B3D91']) : (isDarkMode ? ['rgba(28, 28, 30, 0.7)', 'rgba(28, 28, 30, 0.5)'] : ['rgba(255,255,255,0.2)', 'rgba(255,255,255,0.1)'])}
                 style={styles.controlButtonGradient}
               >
                 {flash ? (
-                  <Flash size={20} color="#FFFFFF" strokeWidth={2} />
+                  <Flash size={20} color={isDarkMode ? "#FFFFFF" : "#FFFFFF"} strokeWidth={2} />
                 ) : (
-                  <FlashOff size={20} color="#FFFFFF" strokeWidth={2} />
+                  <FlashOff size={20} color={isDarkMode ? "#AAAAAA" : "#FFFFFF"} strokeWidth={2} />
                 )}
               </LinearGradient>
             </TouchableOpacity>
@@ -377,10 +391,10 @@ export default function CameraScreen() {
               activeOpacity={0.7}
             >
               <LinearGradient
-                colors={['rgba(255,255,255,0.2)', 'rgba(255,255,255,0.1)']}
+                colors={isDarkMode ? ['rgba(28, 28, 30, 0.7)', 'rgba(28, 28, 30, 0.5)'] : ['rgba(255,255,255,0.2)', 'rgba(255,255,255,0.1)']}
                 style={styles.controlButtonGradient}
               >
-                <RotateCcw size={20} color="#FFFFFF" strokeWidth={2} />
+                <RotateCcw size={20} color={isDarkMode ? "#AAAAAA" : "#FFFFFF"} strokeWidth={2} />
               </LinearGradient>
             </TouchableOpacity>
           </BlurView>
@@ -388,14 +402,17 @@ export default function CameraScreen() {
 
         {/* Mode Selector */}
         <View style={styles.modeSelector} {...panResponder.panHandlers}>
-          <BlurView intensity={20} style={styles.modeSelectorContainer}>
+          <BlurView 
+            intensity={20} 
+            style={[styles.modeSelectorContainer, { backgroundColor: isDarkMode ? 'rgba(28, 28, 30, 0.7)' : 'rgba(255, 255, 255, 0.2)' }]}
+          >
             <TouchableOpacity
               style={[styles.modeButton, captureMode === 'sign' && styles.activeModeButton]}
               onPress={() => captureMode !== 'sign' && switchMode()}
               activeOpacity={0.8}
             >
-              <ScanText size={16} color={captureMode === 'sign' ? '#FFFFFF' : 'rgba(255,255,255,0.7)'} />
-              <Text style={[styles.modeText, captureMode === 'sign' && styles.activeModeText]}>
+              <ScanText size={16} color={captureMode === 'sign' ? (isDarkMode ? '#FFFFFF' : '#FFFFFF') : (isDarkMode ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.7)')} />
+              <Text style={[styles.modeText, captureMode === 'sign' && styles.activeModeText, { color: captureMode === 'sign' ? (isDarkMode ? '#FFFFFF' : '#FFFFFF') : (isDarkMode ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.7)') }]}>
                 Sign Detection
               </Text>
             </TouchableOpacity>
@@ -404,7 +421,7 @@ export default function CameraScreen() {
               onPress={() => captureMode !== 'text' && switchMode()}
               activeOpacity={0.8}
             >
-              <Text style={[styles.modeText, captureMode === 'text' && styles.activeModeText]}>
+              <Text style={[styles.modeText, captureMode === 'text' && styles.activeModeText, { color: captureMode === 'text' ? (isDarkMode ? '#FFFFFF' : '#FFFFFF') : (isDarkMode ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.7)') }]}>
                 Text Capture
               </Text>
             </TouchableOpacity>
@@ -423,8 +440,11 @@ export default function CameraScreen() {
             onPress={handleGalleryUpload}
             activeOpacity={0.8}
           >
-            <BlurView intensity={20} style={styles.galleryButtonBlur}>
-              <ImageIcon size={24} color="#FFFFFF" strokeWidth={2} />
+            <BlurView 
+              intensity={20} 
+              style={[styles.galleryButtonBlur, { backgroundColor: isDarkMode ? 'rgba(28, 28, 30, 0.7)' : 'rgba(255, 255, 255, 0.2)' }]}
+            >
+              <ImageIcon size={24} color={isDarkMode ? "#AAAAAA" : "#FFFFFF"} strokeWidth={2} />
             </BlurView>
           </TouchableOpacity>
 
@@ -446,16 +466,16 @@ export default function CameraScreen() {
               activeOpacity={0.9}
             >
               <LinearGradient
-                colors={isCapturing ? ['#666666', '#444444'] : ['#0078D4', '#0B3D91']}
+                colors={isCapturing ? (isDarkMode ? ['#444444', '#666666'] : ['#666666', '#444444']) : (isDarkMode ? ['#0A84FF', '#0078D4'] : ['#0078D4', '#0B3D91'])}
                 style={styles.captureButtonGradient}
               >
-                <View style={styles.captureButtonInner}>
+                <View style={[styles.captureButtonInner, { backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.2)' }]}>
                   {isCapturing ? (
                     <Animated.View style={styles.processingIndicator}>
-                      <Circle size={20} color="#FFFFFF" strokeWidth={3} />
+                      <Circle size={20} color={isDarkMode ? "#FFFFFF" : "#FFFFFF"} strokeWidth={3} />
                     </Animated.View>
                   ) : (
-                    <CameraIcon size={28} color="#FFFFFF" strokeWidth={2.5} />
+                    <CameraIcon size={28} color={isDarkMode ? "#FFFFFF" : "#FFFFFF"} strokeWidth={2.5} />
                   )}
                 </View>
               </LinearGradient>
@@ -472,7 +492,6 @@ export default function CameraScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
   },
   loadingContainer: {
     flex: 1,
@@ -487,7 +506,6 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: '#FFFFFF',
     fontWeight: '600',
   },
   permissionContainer: {
@@ -497,7 +515,6 @@ const styles = StyleSheet.create({
     padding: 32,
   },
   permissionCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: 24,
     padding: 32,
     alignItems: 'center',
@@ -518,20 +535,17 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#0078D4',
     justifyContent: 'center',
     alignItems: 'center',
   },
   permissionTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#000000',
     marginBottom: 12,
     textAlign: 'center',
   },
   permissionText: {
     fontSize: 16,
-    color: '#666666',
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: 32,
@@ -553,7 +567,6 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   permissionButtonText: {
-    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -566,7 +579,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#FFFFFF',
     zIndex: 10,
   },
   scanOverlay: {
@@ -589,7 +601,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 30,
     height: 30,
-    borderColor: '#0078D4',
     borderWidth: 3,
   },
   scanCornerTL: {
@@ -636,7 +647,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 20,
     height: 20,
-    borderColor: '#0078D4',
     borderWidth: 2,
   },
   textCornerTL: {
@@ -664,14 +674,12 @@ const styles = StyleSheet.create({
     borderTopWidth: 0,
   },
   scanText: {
-    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
     marginTop: 24,
     textAlign: 'center',
   },
   scanSubtext: {
-    color: 'rgba(255, 255, 255, 0.8)',
     fontSize: 14,
     marginTop: 8,
     textAlign: 'center',
@@ -686,7 +694,6 @@ const styles = StyleSheet.create({
   controlsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 20,
     padding: 8,
   },
@@ -716,7 +723,6 @@ const styles = StyleSheet.create({
   },
   modeSelectorContainer: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 20,
     padding: 4,
   },
@@ -729,15 +735,13 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   activeModeButton: {
-    backgroundColor: 'rgba(0, 120, 212, 0.8)',
+    backgroundColor: 'hsla(206, 100.00%, 41.60%, 0.80)',
   },
   modeText: {
-    color: 'rgba(255, 255, 255, 0.7)',
     fontSize: 14,
     fontWeight: '600',
   },
   activeModeText: {
-    color: '#FFFFFF',
   },
   bottomControls: {
     position: 'absolute',
@@ -758,7 +762,6 @@ const styles = StyleSheet.create({
     height: 56,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
   captureButtonContainer: {
     alignItems: 'center',
@@ -782,7 +785,6 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
   },

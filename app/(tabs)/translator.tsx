@@ -25,10 +25,14 @@ import {
   Zap,
   ScanText
 } from 'lucide-react-native';
+import { useTheme } from '../../app/utils/ThemeContext';
+import { Colors } from '../../app/utils/theme';
 
 const { width: screenWidth } = Dimensions.get('window');
 
 export default function TranslatorScreen() {
+  const { theme } = useTheme();
+  const isDarkMode = theme === 'dark';
   const [inputText, setInputText] = useState('');
   const [translatedText, setTranslatedText] = useState('');
   const [isTranslating, setIsTranslating] = useState(false);
@@ -186,51 +190,51 @@ export default function TranslatorScreen() {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: isDarkMode ? Colors.dark.background : Colors.light.background }]}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: isDarkMode ? Colors.dark.cardBackground : Colors.light.cardBackground }]}>
           <View style={styles.headerIcon}>
-            <Languages size={32} stroke="#0078D4" strokeWidth={2} />
-            <View style={styles.sparkleIcon}>
+            <Languages size={32} stroke={isDarkMode ? "#0A84FF" : "#0078D4"} strokeWidth={2} />
+            <View style={[styles.sparkleIcon, { backgroundColor: isDarkMode ? "#0A84FF" : "#0078D4" }]}>
               <Sparkles size={16} stroke="#FFFFFF" />
             </View>
           </View>
-          <Text style={styles.headerTitle}>Script Transliterator</Text>
-          <Text style={styles.headerSubtitle}>Transliterate between Indian scripts instantly</Text>
+          <Text style={[styles.headerTitle, { color: isDarkMode ? Colors.dark.text : Colors.light.text }]}>Script Transliterator</Text>
+          <Text style={[styles.headerSubtitle, { color: isDarkMode ? Colors.dark.secondaryText : Colors.light.secondaryText }]}>Transliterate between Indian scripts instantly</Text>
         </View>
 
         {/* Script Selector */}
         <View style={styles.languageSelectorContainer}>
           <View style={styles.languageColumn}>
-            <Text style={styles.languageLabel}>From Script</Text>
+            <Text style={[styles.languageLabel, { color: isDarkMode ? Colors.dark.secondaryText : Colors.light.secondaryText }]}>From Script</Text>
             <TouchableOpacity 
-              style={styles.languageDropdown}
+              style={[styles.languageDropdown, { backgroundColor: isDarkMode ? Colors.dark.primaryLight : 'rgba(0, 120, 212, 0.1)' }]}
               onPress={() => setShowSourceModal(true)}
             >
-              <Text style={styles.languageText} numberOfLines={2}>{sourceScript}</Text>
+              <Text style={[styles.languageText, { color: isDarkMode ? Colors.dark.primary : "#0078D4" }]} numberOfLines={2}>{sourceScript}</Text>
             </TouchableOpacity>
           </View>
           
           <TouchableOpacity 
-            style={styles.swapButton}
+            style={[styles.swapButton, { backgroundColor: isDarkMode ? Colors.dark.primaryLight : 'rgba(0, 120, 212, 0.1)' }]}
             onPress={handleSwapScripts}
             activeOpacity={0.7}
           >
-            <RotateCcw size={20} stroke="#0078D4" />
+            <RotateCcw size={20} stroke={isDarkMode ? "#0A84FF" : "#0078D4"} />
           </TouchableOpacity>
           
           <View style={styles.languageColumn}>
-            <Text style={styles.languageLabel}>To Script</Text>
+            <Text style={[styles.languageLabel, { color: isDarkMode ? Colors.dark.secondaryText : Colors.light.secondaryText }]}>To Script</Text>
             <TouchableOpacity 
-              style={styles.languageDropdown}
+              style={[styles.languageDropdown, { backgroundColor: isDarkMode ? Colors.dark.primaryLight : 'rgba(0, 120, 212, 0.1)' }]}
               onPress={() => setShowTargetModal(true)}
             >
-              <Text style={styles.languageText} numberOfLines={2}>{targetScript}</Text>
+              <Text style={[styles.languageText, { color: isDarkMode ? Colors.dark.primary : "#0078D4" }]} numberOfLines={2}>{targetScript}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -238,13 +242,13 @@ export default function TranslatorScreen() {
         {/* Input Area */}
         <BlurView intensity={10} style={styles.inputContainer}>
           <LinearGradient
-            colors={['rgba(248, 249, 250, 0.95)', 'rgba(255, 255, 255, 0.95)']}
+            colors={isDarkMode ? ['rgba(28, 28, 30, 0.95)', 'rgba(18, 18, 20, 0.95)'] : ['rgba(248, 249, 250, 0.95)', 'rgba(255, 255, 255, 0.95)']}
             style={styles.inputGradient}
           >
             <TextInput
-              style={styles.textInput}
+              style={[styles.textInput, { color: isDarkMode ? Colors.dark.text : Colors.light.text }]}
               placeholder="Enter text to transliterate..."
-              placeholderTextColor="#999999"
+              placeholderTextColor={isDarkMode ? Colors.dark.placeholder : Colors.light.placeholder}
               value={inputText}
               onChangeText={setInputText}
               multiline
@@ -254,13 +258,13 @@ export default function TranslatorScreen() {
             {inputText.length > 0 && (
               <View style={styles.inputActions}>
                 <TouchableOpacity 
-                  style={styles.clearButton}
+                  style={[styles.clearButton, { backgroundColor: isDarkMode ? Colors.dark.cardBackground : '#F0F0F0' }]}
                   onPress={handleClear}
                   activeOpacity={0.7}
                 >
-                  <Text style={styles.clearButtonText}>Clear</Text>
+                  <Text style={[styles.clearButtonText, { color: isDarkMode ? Colors.dark.text : '#666666' }]}>Clear</Text>
                 </TouchableOpacity>
-                <Text style={styles.charCountText}>{inputText.length}</Text>
+                <Text style={[styles.charCountText, { color: isDarkMode ? Colors.dark.secondaryText : '#999999' }]}>{inputText.length}</Text>
               </View>
             )}
           </LinearGradient>
@@ -280,12 +284,12 @@ export default function TranslatorScreen() {
             activeOpacity={0.8}
           >
             <LinearGradient
-              colors={isTranslating ? ['#666666', '#444444'] : ['#0078D4', '#0B3D91']}
+              colors={isTranslating ? (isDarkMode ? ['#444444', '#666666'] : ['#666666', '#444444']) : (isDarkMode ? ['#0A84FF', '#0078D4'] : ['#0078D4', '#0B3D91'])}
               style={styles.translateButtonGradient}
             >
               <ScanText size={20} stroke="#FFFFFF" strokeWidth={2} />
-              <Text style={styles.translateButtonText}>
-                {isTranslating ? 'Transliterating...' : 'Transliterate'}
+              <Text style={[styles.translateButtonText, { color: '#FFFFFF' }]}>
+                {isTranslating ? 'Translating...' : 'Transliterate'}
               </Text>
             </LinearGradient>
           </TouchableOpacity>
@@ -300,26 +304,26 @@ export default function TranslatorScreen() {
         >
           <BlurView intensity={10} style={styles.resultBlur}>
             <LinearGradient
-              colors={['rgba(248, 249, 250, 0.95)', 'rgba(255, 255, 255, 0.95)']}
+              colors={isDarkMode ? ['rgba(28, 28, 30, 0.95)', 'rgba(18, 18, 20, 0.95)'] : ['rgba(248, 249, 250, 0.95)', 'rgba(255, 255, 255, 0.95)']}
               style={styles.resultGradient}
             >
               <View style={styles.resultHeader}>
-                <Text style={styles.resultTitle}>Transliteration</Text>
+                <Text style={[styles.resultTitle, { color: isDarkMode ? Colors.dark.text : Colors.light.text }]}>Transliteration</Text>
                 {translatedText.length > 0 && (
                   <TouchableOpacity 
-                    style={styles.copyButton}
+                    style={[styles.copyButton, { backgroundColor: isDarkMode ? Colors.dark.primaryLight : 'rgba(0, 120, 212, 0.1)' }]}
                     onPress={handleCopy}
                     activeOpacity={0.7}
                   >
-                    <Copy size={18} stroke="#0078D4" />
+                    <Copy size={18} stroke={isDarkMode ? "#0A84FF" : "#0078D4"} />
                   </TouchableOpacity>
                 )}
               </View>
               
               {translatedText ? (
-                <Text style={styles.resultText}>{translatedText}</Text>
+                <Text style={[styles.resultText, { color: isDarkMode ? Colors.dark.text : Colors.light.text }]}>{translatedText}</Text>
               ) : (
-                <Text style={styles.resultPlaceholder}>
+                <Text style={[styles.resultPlaceholder, { color: isDarkMode ? Colors.dark.placeholder : '#999999' }]}>
                   {inputText ? 'Tap "Transliterate" to see the result' : 'Transliteration will appear here'}
                 </Text>
               )}
@@ -335,15 +339,15 @@ export default function TranslatorScreen() {
         visible={showSourceModal}
         onRequestClose={() => setShowSourceModal(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+        <View style={[styles.modalOverlay, { backgroundColor: isDarkMode ? 'rgba(0, 0, 0, 0.7)' : 'rgba(0, 0, 0, 0.5)' }]}>
+          <View style={[styles.modalContent, { backgroundColor: isDarkMode ? Colors.dark.cardBackground : '#FFFFFF' }]}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Source Script</Text>
+              <Text style={[styles.modalTitle, { color: isDarkMode ? Colors.dark.text : Colors.light.text }]}>Select Source Script</Text>
               <TouchableOpacity 
-                style={styles.modalCloseButton}
+                style={[styles.modalCloseButton, { backgroundColor: isDarkMode ? Colors.dark.cardBackground : 'rgba(0, 0, 0, 0.1)' }]}
                 onPress={() => setShowSourceModal(false)}
               >
-                <Text style={styles.modalCloseText}>✕</Text>
+                <Text style={[styles.modalCloseText, { color: isDarkMode ? Colors.dark.text : '#000000' }]}>✕</Text>
               </TouchableOpacity>
             </View>
             <ScrollView style={styles.modalScrollView}>
@@ -352,7 +356,8 @@ export default function TranslatorScreen() {
                   key={`source-${script}`}
                   style={[
                     styles.modalLanguageItem,
-                    sourceScript === script && styles.modalLanguageItemSelected
+                    sourceScript === script && styles.modalLanguageItemSelected,
+                    { backgroundColor: sourceScript === script ? (isDarkMode ? 'rgba(10, 132, 255, 0.2)' : 'rgba(0, 120, 212, 0.1)') : (isDarkMode ? Colors.dark.cardBackground : '#F0F0F0') }
                   ]}
                   onPress={() => {
                     setSourceScript(script);
@@ -361,7 +366,8 @@ export default function TranslatorScreen() {
                 >
                   <Text style={[
                     styles.modalLanguageText,
-                    sourceScript === script && styles.modalLanguageTextSelected
+                    sourceScript === script && styles.modalLanguageTextSelected,
+                    { color: sourceScript === script ? (isDarkMode ? "#0A84FF" : "#0078D4") : (isDarkMode ? Colors.dark.text : '#666666') }
                   ]}>
                     {script}
                   </Text>
@@ -379,15 +385,15 @@ export default function TranslatorScreen() {
         visible={showTargetModal}
         onRequestClose={() => setShowTargetModal(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+        <View style={[styles.modalOverlay, { backgroundColor: isDarkMode ? 'rgba(0, 0, 0, 0.7)' : 'rgba(0, 0, 0, 0.5)' }]}>
+          <View style={[styles.modalContent, { backgroundColor: isDarkMode ? Colors.dark.cardBackground : '#FFFFFF' }]}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Target Script</Text>
+              <Text style={[styles.modalTitle, { color: isDarkMode ? Colors.dark.text : '#000000' }]}>Select Target Script</Text>
               <TouchableOpacity 
-                style={styles.modalCloseButton}
+                style={[styles.modalCloseButton, { backgroundColor: isDarkMode ? Colors.dark.cardBackground : 'rgba(0, 0, 0, 0.1)' }]}
                 onPress={() => setShowTargetModal(false)}
               >
-                <Text style={styles.modalCloseText}>✕</Text>
+                <Text style={[styles.modalCloseText, { color: isDarkMode ? Colors.dark.text : '#000000' }]}>✕</Text>
               </TouchableOpacity>
             </View>
             <ScrollView style={styles.modalScrollView}>
@@ -396,7 +402,8 @@ export default function TranslatorScreen() {
                   key={`target-${script}`}
                   style={[
                     styles.modalLanguageItem,
-                    targetScript === script && styles.modalLanguageItemSelected
+                    targetScript === script && styles.modalLanguageItemSelected,
+                    { backgroundColor: targetScript === script ? (isDarkMode ? 'rgba(10, 132, 255, 0.2)' : 'rgba(0, 120, 212, 0.1)') : (isDarkMode ? Colors.dark.cardBackground : '#F0F0F0') }
                   ]}
                   onPress={() => {
                     setTargetScript(script);
@@ -405,7 +412,8 @@ export default function TranslatorScreen() {
                 >
                   <Text style={[
                     styles.modalLanguageText,
-                    targetScript === script && styles.modalLanguageTextSelected
+                    targetScript === script && styles.modalLanguageTextSelected,
+                    { color: targetScript === script ? (isDarkMode ? "#0A84FF" : "#0078D4") : (isDarkMode ? Colors.dark.text : '#666666') }
                   ]}>
                     {script}
                   </Text>
@@ -422,7 +430,6 @@ export default function TranslatorScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
   },
   scrollView: {
     flex: 1,
@@ -452,16 +459,19 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -8,
     right: -8,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#000000',
     marginBottom: 8,
   },
   headerSubtitle: {
     fontSize: 16,
-    color: '#666666',
     textAlign: 'center',
     lineHeight: 22,
   },
@@ -477,13 +487,11 @@ const styles = StyleSheet.create({
   },
   languageLabel: {
     fontSize: 14,
-    color: '#999999',
     marginBottom: 8,
   },
   languageDropdown: {
     paddingVertical: 12,
     paddingHorizontal: 16,
-    backgroundColor: 'rgba(0, 120, 212, 0.1)',
     borderRadius: 12,
     minWidth: 120,
     alignItems: 'center',
@@ -492,7 +500,6 @@ const styles = StyleSheet.create({
   },
   languageText: {
     fontSize: 14,
-    color: '#0078D4',
     fontWeight: '600',
     textAlign: 'center',
   },
@@ -541,7 +548,6 @@ const styles = StyleSheet.create({
   textInput: {
     flex: 1,
     fontSize: 16,
-    color: '#000000',
     lineHeight: 24,
     fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
   },
@@ -554,17 +560,14 @@ const styles = StyleSheet.create({
   clearButton: {
     paddingVertical: 4,
     paddingHorizontal: 8,
-    backgroundColor: '#F0F0F0',
     borderRadius: 8,
   },
   clearButtonText: {
     fontSize: 12,
-    color: '#666666',
     fontWeight: '500',
   },
   charCountText: {
     fontSize: 12,
-    color: '#999999',
     fontWeight: '500',
   },
   translateButtonContainer: {
@@ -590,7 +593,6 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   translateButtonText: {
-    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -618,7 +620,6 @@ const styles = StyleSheet.create({
   resultTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#000000',
   },
   copyButton: {
     width: 40,
@@ -630,13 +631,11 @@ const styles = StyleSheet.create({
   },
   resultText: {
     fontSize: 16,
-    color: '#000000',
     lineHeight: 24,
     fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
   },
   resultPlaceholder: {
     fontSize: 16,
-    color: '#999999',
     lineHeight: 24,
     fontFamily: Platform.OS === 'ios' ? 'System' : 'Roboto',
   },
@@ -653,11 +652,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
     width: screenWidth - 48,
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 24,
     shadowColor: '#000000',
@@ -675,19 +672,16 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#000000',
   },
   modalCloseButton: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalCloseText: {
     fontSize: 24,
-    color: '#000000',
   },
   modalScrollView: {
     maxHeight: 300,
@@ -695,20 +689,16 @@ const styles = StyleSheet.create({
   modalLanguageItem: {
     paddingVertical: 12,
     paddingHorizontal: 16,
-    backgroundColor: '#F0F0F0',
     borderRadius: 12,
     marginBottom: 8,
   },
   modalLanguageItemSelected: {
-    backgroundColor: 'rgba(0, 120, 212, 0.1)',
   },
   modalLanguageText: {
     fontSize: 14,
-    color: '#666666',
     fontWeight: '500',
   },
   modalLanguageTextSelected: {
-    color: '#0078D4',
     fontWeight: '600',
   },
 

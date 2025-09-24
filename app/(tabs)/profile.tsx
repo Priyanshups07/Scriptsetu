@@ -13,6 +13,8 @@ import {
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { User, Mail, Settings, Moon, Sun, LogOut, Camera, FileText, CreditCard as Edit3, ChevronRight, Languages, Heart } from 'lucide-react-native';
+import { useTheme } from '../../app/utils/ThemeContext';
+import { Colors, ThemeStyles } from '../../app/utils/theme';
 
 interface SavedItem {
   id: string;
@@ -22,7 +24,9 @@ interface SavedItem {
 }
 
 export default function ProfileScreen() {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const { theme, toggleTheme } = useTheme();
+  // Helper function to determine if dark mode is active
+  const isDarkMode = theme === 'dark';
   const [savedItems] = useState<SavedItem[]>([
     {
       id: '1',
@@ -102,10 +106,9 @@ export default function ProfileScreen() {
     );
   };
 
-  const toggleDarkMode = (value: boolean) => {
+  const handleToggleDarkMode = (value: boolean) => {
     triggerHaptic();
-    setIsDarkMode(value);
-    Alert.alert('Theme', `${value ? 'Dark' : 'Light'} mode will be applied.`);
+    toggleTheme();
   };
 
   const formatDate = (date: Date) => {
@@ -116,8 +119,66 @@ export default function ProfileScreen() {
     });
   };
 
-  return (
-    <View style={styles.container}>
+  // Theme-based styles
+  const themedStyles = {
+    container: {
+      flex: 1,
+      backgroundColor: isDarkMode ? Colors.dark.background : Colors.light.background,
+    },
+    userName: {
+      fontSize: 24,
+      fontWeight: '700' as const,
+      color: isDarkMode ? Colors.dark.text : Colors.light.text,
+      marginBottom: 4,
+    },
+    userEmail: {
+      fontSize: 16,
+      color: isDarkMode ? Colors.dark.secondaryText : Colors.light.secondaryText,
+      marginBottom: 20,
+    },
+    sectionTitle: {
+      fontSize: 20,
+      fontWeight: '600' as const,
+      color: isDarkMode ? Colors.dark.text : Colors.light.text,
+      marginBottom: 16,
+    },
+    settingText: {
+      fontSize: 16,
+      color: isDarkMode ? Colors.dark.text : Colors.light.text,
+      fontWeight: '500' as const,
+    },
+    statNumber: {
+      fontSize: 24,
+      fontWeight: '700' as const,
+      color: isDarkMode ? Colors.dark.text : Colors.light.text,
+      marginTop: 8,
+      marginBottom: 4,
+    },
+    statLabel: {
+      fontSize: 12,
+      color: isDarkMode ? Colors.dark.secondaryText : Colors.light.secondaryText,
+      fontWeight: '500' as const,
+    },
+    activityText: {
+      fontSize: 14,
+      color: isDarkMode ? Colors.dark.text : Colors.light.text,
+      fontWeight: '500' as const,
+      marginBottom: 4,
+      lineHeight: 20,
+    },
+    activityDate: {
+      fontSize: 12,
+      color: isDarkMode ? Colors.dark.secondaryText : Colors.light.secondaryText,
+    },
+    logoutText: {
+      color: isDarkMode ? Colors.dark.error : Colors.light.error,
+      fontSize: 16,
+      fontWeight: '600' as const,
+    },
+  };
+
+    return (
+    <View style={themedStyles.container}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -132,19 +193,33 @@ export default function ProfileScreen() {
             ]}
           >
             <TouchableOpacity
-              style={styles.avatar}
+              style={[
+                styles.avatar,
+                {
+                  backgroundColor: isDarkMode ? Colors.dark.primaryLight : Colors.light.primaryLight,
+                  borderColor: isDarkMode ? Colors.dark.primary : Colors.light.primary,
+                }
+              ]}
               onPress={animateAvatar}
               activeOpacity={0.8}
             >
-              <User size={48} color="#0078D4" strokeWidth={2} />
+              <User size={48} color={isDarkMode ? Colors.dark.primary : Colors.light.primary} strokeWidth={2} />
             </TouchableOpacity>
-            <View style={styles.avatarBadge}>
-              <Languages size={16} color="#FFFFFF" />
+            <View 
+              style={[
+                styles.avatarBadge,
+                {
+                  backgroundColor: isDarkMode ? Colors.dark.primary : Colors.light.primary,
+                  borderColor: isDarkMode ? Colors.dark.background : Colors.light.background,
+                }
+              ]}
+            >
+              <Languages size={16} color={theme === 'light' ? '#FFFFFF' : '#FFFFFF'} />
             </View>
           </Animated.View>
 
-          <Text style={styles.userName}>Scriptsetu User</Text>
-          <Text style={styles.userEmail}>user@scriptsetu.in</Text>
+          <Text style={themedStyles.userName}>Scriptsetu User</Text>
+          <Text style={themedStyles.userEmail}>user@scriptsetu.in</Text>
 
           <Animated.View
             style={[
@@ -153,112 +228,222 @@ export default function ProfileScreen() {
             ]}
           >
             <TouchableOpacity
-              style={styles.editButton}
+              style={[
+                styles.editButton,
+                {
+                  backgroundColor: isDarkMode ? Colors.dark.primaryLight : Colors.light.primaryLight,
+                }
+              ]}
               onPress={handleEditProfile}
               activeOpacity={0.8}
             >
-              <Edit3 size={16} color="#0078D4" />
-              <Text style={styles.editButtonText}>Edit Profile</Text>
+              <Edit3 size={16} color={isDarkMode ? Colors.dark.primary : Colors.light.primary} />
+              <Text 
+                style={[
+                  styles.editButtonText,
+                  {
+                    color: isDarkMode ? Colors.dark.primary : Colors.light.primary,
+                  }
+                ]}
+              >
+                Edit Profile
+              </Text>
             </TouchableOpacity>
           </Animated.View>
         </View>
 
-        {/* Stats */}
-        <View style={styles.statsContainer}>
-          <View style={styles.statItem}>
-            <Camera size={20} color="#0078D4" />
-            <Text style={styles.statNumber}>24</Text>
-            <Text style={styles.statLabel}>Signs</Text>
+        {/* Information Section - Responsive with dummy information */}
+        <View 
+          style={[
+            styles.infoSection,
+            {
+              backgroundColor: isDarkMode ? Colors.dark.secondaryBackground : Colors.light.secondaryBackground,
+            }
+          ]}
+        >
+          <Text style={themedStyles.sectionTitle}>App Information</Text>
+          
+          <View style={styles.infoGrid}>
+            <View style={styles.infoCard}>
+              <View style={styles.infoIconContainer}>
+                <View style={[styles.infoIcon, { backgroundColor: isDarkMode ? Colors.dark.primaryLight : Colors.light.primaryLight }]}>
+                  <Languages size={20} color={isDarkMode ? Colors.dark.primary : Colors.light.primary} />
+                </View>
+              </View>
+              <Text style={themedStyles.statNumber}>12</Text>
+              <Text style={themedStyles.statLabel}>Supported Scripts</Text>
+            </View>
+            
+            <View style={styles.infoCard}>
+              <View style={styles.infoIconContainer}>
+                <View style={[styles.infoIcon, { backgroundColor: isDarkMode ? Colors.dark.primaryLight : Colors.light.primaryLight }]}>
+                  <Camera size={20} color={isDarkMode ? Colors.dark.primary : Colors.light.primary} />
+                </View>
+              </View>
+              <Text style={themedStyles.statNumber}>24</Text>
+              <Text style={themedStyles.statLabel}>Signs Translated</Text>
+            </View>
+            
+            <View style={styles.infoCard}>
+              <View style={styles.infoIconContainer}>
+                <View style={[styles.infoIcon, { backgroundColor: isDarkMode ? Colors.dark.primaryLight : Colors.light.primaryLight }]}>
+                  <FileText size={20} color={isDarkMode ? Colors.dark.primary : Colors.light.primary} />
+                </View>
+              </View>
+              <Text style={themedStyles.statNumber}>16</Text>
+              <Text style={themedStyles.statLabel}>Texts Processed</Text>
+            </View>
+            
+            <View style={styles.infoCard}>
+              <View style={styles.infoIconContainer}>
+                <View style={[styles.infoIcon, { backgroundColor: isDarkMode ? Colors.dark.primaryLight : Colors.light.primaryLight }]}>
+                  <Heart size={20} color={isDarkMode ? Colors.dark.primary : Colors.light.primary} />
+                </View>
+              </View>
+              <Text style={themedStyles.statNumber}>8</Text>
+              <Text style={themedStyles.statLabel}>Favorites</Text>
+            </View>
           </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <FileText size={20} color="#0078D4" />
-            <Text style={styles.statNumber}>16</Text>
-            <Text style={styles.statLabel}>Texts</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Languages size={20} color="#0078D4" />
-            <Text style={styles.statNumber}>12</Text>
-            <Text style={styles.statLabel}>Scripts</Text>
+          
+          <View 
+            style={[
+              styles.infoDetails,
+              {
+                borderTopColor: isDarkMode ? Colors.dark.separator : Colors.light.separator,
+              }
+            ]}
+          >
+            <View style={styles.infoDetailRow}>
+              <Text style={themedStyles.settingText}>Version</Text>
+              <Text style={themedStyles.activityDate}>v1.2.0</Text>
+            </View>
+            <View style={styles.infoDetailRow}>
+              <Text style={themedStyles.settingText}>Last Update</Text>
+              <Text style={themedStyles.activityDate}>Dec 15, 2024</Text>
+            </View>
+            <View style={styles.infoDetailRow}>
+              <Text style={themedStyles.settingText}>Storage Used</Text>
+              <Text style={themedStyles.activityDate}>4.2 MB</Text>
+            </View>
           </View>
         </View>
 
         {/* Settings */}
         <View style={styles.settingsSection}>
-          <Text style={styles.sectionTitle}>Settings</Text>
+          <Text style={themedStyles.sectionTitle}>Settings</Text>
 
-          <View style={styles.settingItem}>
+          <View 
+            style={[
+              styles.settingItem,
+              {
+                backgroundColor: isDarkMode ? Colors.dark.secondaryBackground : Colors.light.secondaryBackground,
+              }
+            ]}
+          >
             <View style={styles.settingLeft}>
               {isDarkMode ? (
-                <Moon size={20} color="#0078D4" />
+                <Moon size={20} color={isDarkMode ? Colors.dark.primary : Colors.light.primary} />
               ) : (
-                <Sun size={20} color="#0078D4" />
+                <Sun size={20} color={isDarkMode ? Colors.dark.primary : Colors.light.primary} />
               )}
-              <Text style={styles.settingText}>Dark Mode</Text>
+              <Text style={themedStyles.settingText}>Dark Mode</Text>
             </View>
             <Switch
               value={isDarkMode}
-              onValueChange={toggleDarkMode}
-              trackColor={{ false: '#E5E5E5', true: '#0078D4' }}
+              onValueChange={handleToggleDarkMode}
+              trackColor={{ false: isDarkMode ? Colors.dark.border : Colors.light.border, true: isDarkMode ? Colors.dark.primary : Colors.light.primary }}
               thumbColor={'#FFFFFF'}
             />
           </View>
 
-          <TouchableOpacity style={styles.settingItem} activeOpacity={0.8}>
+          <TouchableOpacity 
+            style={[
+              styles.settingItem,
+              {
+                backgroundColor: isDarkMode ? Colors.dark.secondaryBackground : Colors.light.secondaryBackground,
+              }
+            ]} 
+            activeOpacity={0.8}
+          >
             <View style={styles.settingLeft}>
-              <Mail size={20} color="#0078D4" />
-              <Text style={styles.settingText}>Notifications</Text>
+              <Mail size={20} color={isDarkMode ? Colors.dark.primary : Colors.light.primary} />
+              <Text style={themedStyles.settingText}>Notifications</Text>
             </View>
-            <ChevronRight size={20} color="#999999" />
+            <ChevronRight size={20} color={isDarkMode ? Colors.dark.placeholder : Colors.light.placeholder} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.settingItem} activeOpacity={0.8}>
+          <TouchableOpacity 
+            style={[
+              styles.settingItem,
+              {
+                backgroundColor: isDarkMode ? Colors.dark.secondaryBackground : Colors.light.secondaryBackground,
+              }
+            ]} 
+            activeOpacity={0.8}
+          >
             <View style={styles.settingLeft}>
-              <Heart size={20} color="#0078D4" />
-              <Text style={styles.settingText}>Favorite Scripts</Text>
+              <Heart size={20} color={isDarkMode ? Colors.dark.primary : Colors.light.primary} />
+              <Text style={themedStyles.settingText}>Favorite Scripts</Text>
             </View>
-            <ChevronRight size={20} color="#999999" />
+            <ChevronRight size={20} color={isDarkMode ? Colors.dark.placeholder : Colors.light.placeholder} />
           </TouchableOpacity>
         </View>
 
         {/* Recent Activity */}
         <View style={styles.activitySection}>
-          <Text style={styles.sectionTitle}>Recent Transliterations</Text>
+          <Text style={themedStyles.sectionTitle}>Recent Transliterations</Text>
           {savedItems.map((item) => (
             <TouchableOpacity
               key={item.id}
-              style={styles.activityItem}
+              style={[
+                styles.activityItem,
+                {
+                  backgroundColor: isDarkMode ? Colors.dark.secondaryBackground : Colors.light.secondaryBackground,
+                }
+              ]}
               activeOpacity={0.8}
             >
-              <View style={styles.activityIcon}>
+              <View 
+                style={[
+                  styles.activityIcon,
+                  {
+                    backgroundColor: isDarkMode ? Colors.dark.primaryLight : Colors.light.primaryLight,
+                  }
+                ]}
+              >
                 {item.type === 'sign' ? (
-                  <Camera size={16} color="#0078D4" />
+                  <Camera size={16} color={isDarkMode ? Colors.dark.primary : Colors.light.primary} />
                 ) : (
-                  <FileText size={16} color="#0078D4" />
+                  <FileText size={16} color={isDarkMode ? Colors.dark.primary : Colors.light.primary} />
                 )}
               </View>
               <View style={styles.activityContent}>
-                <Text style={styles.activityText} numberOfLines={2}>
+                <Text style={themedStyles.activityText} numberOfLines={2}>
                   {item.content}
                 </Text>
-                <Text style={styles.activityDate}>
+                <Text style={themedStyles.activityDate}>
                   {formatDate(item.timestamp)}
                 </Text>
               </View>
-              <ChevronRight size={16} color="#999999" />
+              <ChevronRight size={16} color={isDarkMode ? Colors.dark.placeholder : Colors.light.placeholder} />
             </TouchableOpacity>
           ))}
         </View>
 
         {/* Logout */}
         <TouchableOpacity
-          style={styles.logoutButton}
+          style={[
+            styles.logoutButton,
+            {
+              backgroundColor: isDarkMode ? '#2C1C1C' : '#FFF5F5',
+              borderColor: isDarkMode ? '#4A2D2D' : '#FFE5E5',
+            }
+          ]}
           onPress={handleLogout}
           activeOpacity={0.8}
         >
-          <LogOut size={20} color="#FF3B30" />
-          <Text style={styles.logoutText}>Logout</Text>
+          <LogOut size={20} color={isDarkMode ? Colors.dark.error : Colors.light.error} />
+          <Text style={themedStyles.logoutText}>Logout</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>
@@ -266,10 +451,6 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
   scrollView: {
     flex: 1,
   },
@@ -290,11 +471,9 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#E6F0FA',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 4,
-    borderColor: '#0078D4',
   },
   avatarBadge: {
     position: 'absolute',
@@ -303,22 +482,9 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#0078D4',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
-    borderColor: '#FFFFFF',
-  },
-  userName: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#000000',
-    marginBottom: 4,
-  },
-  userEmail: {
-    fontSize: 16,
-    color: '#666666',
-    marginBottom: 20,
   },
   editButtonContainer: {
     alignItems: 'center',
@@ -328,18 +494,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 10,
-    backgroundColor: '#E6F0FA',
     borderRadius: 20,
     gap: 6,
   },
   editButtonText: {
-    color: '#0078D4',
     fontSize: 14,
     fontWeight: '600',
   },
   statsContainer: {
     flexDirection: 'row',
-    backgroundColor: '#F8F9FA',
     borderRadius: 16,
     padding: 20,
     marginBottom: 32,
@@ -350,32 +513,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
   },
-  statNumber: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#000000',
-    marginTop: 8,
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#666666',
-    fontWeight: '500',
-  },
   statDivider: {
     width: 1,
     height: 40,
-    backgroundColor: '#E5E5E5',
     marginHorizontal: 16,
   },
   settingsSection: {
     marginBottom: 32,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#000000',
-    marginBottom: 16,
   },
   settingItem: {
     flexDirection: 'row',
@@ -383,7 +527,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 16,
     paddingHorizontal: 16,
-    backgroundColor: '#F8F9FA',
     borderRadius: 12,
     marginBottom: 8,
   },
@@ -392,11 +535,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
   },
-  settingText: {
-    fontSize: 16,
-    color: '#000000',
-    fontWeight: '500',
-  },
   activitySection: {
     marginBottom: 32,
   },
@@ -404,7 +542,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#F8F9FA',
     borderRadius: 12,
     marginBottom: 8,
     gap: 12,
@@ -413,38 +550,57 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#E6F0FA',
     justifyContent: 'center',
     alignItems: 'center',
   },
   activityContent: {
     flex: 1,
   },
-  activityText: {
-    fontSize: 14,
-    color: '#000000',
-    fontWeight: '500',
-    marginBottom: 4,
-    lineHeight: 20,
-  },
-  activityDate: {
-    fontSize: 12,
-    color: '#666666',
-  },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 16,
-    backgroundColor: '#FFF5F5',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#FFE5E5',
     gap: 8,
   },
-  logoutText: {
-    color: '#FF3B30',
-    fontSize: 16,
-    fontWeight: '600',
+  infoSection: {
+    marginBottom: 32,
+    borderRadius: 16,
+    padding: 20,
+  },
+  infoGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  infoCard: {
+    width: '48%',
+    backgroundColor: 'transparent',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    alignItems: 'center',
+  },
+  infoIconContainer: {
+    marginBottom: 12,
+  },
+  infoIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  infoDetails: {
+    borderTopWidth: 1,
+    paddingTop: 16,
+  },
+  infoDetailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
   },
 });
