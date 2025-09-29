@@ -1,0 +1,21 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Script Setu Logo -->
+  <defs>
+    <linearGradient id="scriptGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4F46E5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7C3AED;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="setuGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10B981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#06B6D4;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Letter S - Script -->
+  <path d="M50 60 C50 40, 80 40, 90 60 C100 80, 80 100, 60 100 C40 100, 30 120, 50 140 C70 160, 110 160, 110 140" 
+        stroke="url(#scriptGradient)" stroke-width="8" fill="none" stroke-linecap="round"/>
+  
+  <!-- Letter S - Setu -->
+  <path d="M90 60 C90 40, 120 40, 130 60 C140 80, 120 100, 100 100 C80 100, 70 120, 90 140 C110 160, 150 160, 150 140" 
+        stroke="url(#setuGradient)" stroke-width="8" fill="none" stroke-linecap="round"/>
+</svg>
